@@ -1,9 +1,8 @@
 import {Component} from "react";
 import {Container} from "react-bootstrap";
 import ResultTable from "./compoent/ResultTable.tsx";
-import mockData from "./response.json";
-
 import type {GetAllProductDto} from "../../../data/product/product.type.ts";
+import axios from "axios";
 
 interface Props{
 
@@ -12,7 +11,7 @@ interface Props{
 
 interface State{
   resultDtoList: GetAllProductDto[] | undefined  //not yet call api is undefined
-
+  isError: boolean;
 }
 
 export default class GetAllProductPage extends Component<Props, State>{
@@ -20,16 +19,34 @@ export default class GetAllProductPage extends Component<Props, State>{
     super(props);
 
     this.state ={
-      resultDtoList: undefined
+      resultDtoList: undefined,
+      isError: false
     }
   }
 
   componentDidMount() {
-    this.setState({
+    /*this.setState({
       resultDtoList: mockData
-    })
-  }
+    })*/
 
+    /*we now dont use mockData and call api*/
+    /*<GetAllProductDto[]> this is the type*/
+    axios.get<GetAllProductDto[]>("http://localhost:8080/public/products")
+      .then(
+        (response)=>{
+          this.setState({  /*data = the Json , we put the response into the State*/
+            resultDtoList: response.data
+          })
+        }
+      )
+      .catch(
+        ()=>{
+          this.setState({
+              isError: true
+          })
+        }
+      )
+  }
 
   render(){
     return(
@@ -40,6 +57,14 @@ export default class GetAllProductPage extends Component<Props, State>{
             <ResultTable resultDtoList={this.state.resultDtoList}
             />
         }
+
+        {
+          this.state.isError &&
+          <img
+            src="https://thumb.ac-illust.com/61/61ad2ff2ef945abd168b4c70310c099f_t.jpeg"
+            />
+        }
+
       </Container>
     );
 
